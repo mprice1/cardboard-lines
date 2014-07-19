@@ -13,6 +13,6 @@ varying vec3 v_Normal;
 void main() {
   v_Texcoord = a_Texcoord;
   v_Normal = a_Normal;
-  v_Position = vec3(u_M * a_Position);
+  v_Position = vec3(u_MV * a_Position);
   gl_Position = u_MVP * a_Position;
 }
