@@ -2,7 +2,7 @@ package com.mprice.abyss;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
 import android.os.Bundle;
@@ -48,18 +48,18 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      */
     private int loadGLShader(int type, int resId) {
         String code = readRawTextFile(resId);
-        int shader = GLES20.glCreateShader(type);
-        GLES20.glShaderSource(shader, code);
-        GLES20.glCompileShader(shader);
+        int shader = GLES30.glCreateShader(type);
+        GLES30.glShaderSource(shader, code);
+        GLES30.glCompileShader(shader);
 
         // Get the compilation status.
         final int[] compileStatus = new int[1];
-        GLES20.glGetShaderiv(shader, GLES20.GL_COMPILE_STATUS, compileStatus, 0);
+        GLES30.glGetShaderiv(shader, GLES30.GL_COMPILE_STATUS, compileStatus, 0);
 
         // If the compilation failed, delete the shader.
         if (compileStatus[0] == 0) {
-            Log.e(TAG, "Error compiling shader: " + GLES20.glGetShaderInfoLog(shader));
-            GLES20.glDeleteShader(shader);
+            Log.e(TAG, "Error compiling shader: " + GLES30.glGetShaderInfoLog(shader));
+            GLES30.glDeleteShader(shader);
             shader = 0;
         }
 
@@ -98,7 +98,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
      */
     public static void checkGLError(String func) {
         int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+        while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
             Log.e(TAG, func + ": glError " + error);
             throw new RuntimeException(func + ": glError " + error);
         }
@@ -118,7 +118,7 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         shot = new ScratchShot(sharedAssets);
     }
 
-    private FloatBuffer makeBufferData(float[] data) {
+    public static FloatBuffer makeBufferData(float[] data) {
         ByteBuffer bb = ByteBuffer.allocateDirect(data.length * 4);
         bb.order(ByteOrder.nativeOrder());
         FloatBuffer fb = bb.asFloatBuffer();
@@ -180,24 +180,24 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
     private void loadTexture(String name, int resId, int wrap, int minFilter, int MagFilter) {
         int texture[] = new int[1];
-        GLES20.glGenTextures(1, texture, 0);
+        GLES30.glGenTextures(1, texture, 0);
         sharedAssets.textures.put(name, texture[0]);
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-        GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, texture[0]);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, wrap);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_REPEAT);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_LINEAR_MIPMAP_LINEAR);
-        GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
+        GLES30.glActiveTexture(GLES30.GL_TEXTURE0);
+        GLES30.glBindTexture(GLES30.GL_TEXTURE_2D, texture[0]);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_S, wrap);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_WRAP_T, GLES30.GL_REPEAT);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MIN_FILTER, GLES30.GL_LINEAR_MIPMAP_LINEAR);
+        GLES30.glTexParameteri(GLES30.GL_TEXTURE_2D, GLES30.GL_TEXTURE_MAG_FILTER, GLES30.GL_LINEAR);
         Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), resId);
-        GLUtils.texImage2D(GLES20.GL_TEXTURE_2D, 0, bmp, 0);
-        GLES20.glGenerateMipmap(GLES20.GL_TEXTURE_2D);
+        GLUtils.texImage2D(GLES30.GL_TEXTURE_2D, 0, bmp, 0);
+        GLES30.glGenerateMipmap(GLES30.GL_TEXTURE_2D);
         bmp.recycle();
     }
 
     @Override
     public void onSurfaceCreated(EGLConfig eglConfig) {
         Log.i(TAG, "onSurfaceCreated");
-        GLES20.glClearColor(0.1f, 0.1f, 0.1f, 0.5f);
+        GLES30.glClearColor(0.1f, 0.1f, 0.1f, 0.5f);
 
         Model floorModel = new Model();
         floorModel.vertexBuffer = makeBufferData(new float[] {
@@ -229,22 +229,43 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         loadModel("sphere", R.raw.sphere);
 
         Shader shader = new Shader();
-        int vertexShader = loadGLShader(GLES20.GL_VERTEX_SHADER, R.raw.basic_vertex);
-        int fragmentShader = loadGLShader(GLES20.GL_FRAGMENT_SHADER, R.raw.basic_fragment);
-        shader.id = GLES20.glCreateProgram();
-        GLES20.glAttachShader(shader.id, vertexShader);
-        GLES20.glAttachShader(shader.id, fragmentShader);
-        GLES20.glLinkProgram(shader.id);
+        int vertexShader = loadGLShader(GLES30.GL_VERTEX_SHADER, R.raw.basic_vertex);
+        int fragmentShader = loadGLShader(GLES30.GL_FRAGMENT_SHADER, R.raw.basic_fragment);
+        shader.id = GLES30.glCreateProgram();
+        GLES30.glAttachShader(shader.id, vertexShader);
+        GLES30.glAttachShader(shader.id, fragmentShader);
+        GLES30.glLinkProgram(shader.id);
         shader.hasUniform(Shader.U_MODEL)
                 .hasUniform(Shader.U_MODEL_VIEW)
                 .hasUniform(Shader.U_MODEL_VIEW_PROJECTION)
                 .hasUniform(Shader.U_TEXTURE)
                 .hasUniform(Shader.U_TEXTURE_SCALE)
                 .hasUniform(Shader.U_BG_COLOR);
+        shader.hasAttribute(Shader.A_TEXCOORD)
+                .hasAttribute(Shader.A_POSITION)
+                .hasAttribute(Shader.A_NORMAL);
         sharedAssets.shaders.put("rule", shader);
 
+        Shader shader2 = new Shader();
+        vertexShader = loadGLShader(GLES30.GL_VERTEX_SHADER, R.raw.instanced_mv_vertex);
+        fragmentShader = loadGLShader(GLES30.GL_FRAGMENT_SHADER, R.raw.instanced_mv_fragment);
+        shader2.id = GLES30.glCreateProgram();
+        GLES30.glAttachShader(shader2.id, vertexShader);
+        GLES30.glAttachShader(shader2.id, fragmentShader);
+        GLES30.glLinkProgram(shader2.id);
+        shader2.hasUniform(Shader.U_PROJECTION)
+                .hasUniform(Shader.U_TEXTURE)
+                .hasUniform(Shader.U_TEXTURE_SCALE);
+        shader2.hasAttribute(Shader.A_TEXCOORD)
+                .hasAttribute(Shader.A_POSITION)
+                .hasAttribute(Shader.A_NORMAL)
+                .hasAttribute(Shader.A_MODEL_VIEW);
+        sharedAssets.shaders.put("instanced_mv", shader2);
+
         loadTexture("rule_alpha", R.raw.rule_alpha,
-                GLES20.GL_REPEAT, GLES20.GL_LINEAR_MIPMAP_LINEAR, GLES20.GL_LINEAR);
+                GLES30.GL_REPEAT, GLES30.GL_LINEAR_MIPMAP_LINEAR, GLES30.GL_LINEAR);
+        loadTexture("rawmat", R.drawable.sqpatch_clean,
+                GLES30.GL_REPEAT, GLES30.GL_LINEAR_MIPMAP_LINEAR, GLES30.GL_LINEAR);
 
         shot.init();
 

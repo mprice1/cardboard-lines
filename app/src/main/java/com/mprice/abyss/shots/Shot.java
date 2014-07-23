@@ -1,6 +1,7 @@
 package com.mprice.abyss.shots;
 
 import android.opengl.GLES20;
+import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.util.Log;
 
@@ -32,10 +33,25 @@ public abstract class Shot {
 
     public static void checkGLError(String func) {
         int error;
-        while ((error = GLES20.glGetError()) != GLES20.GL_NO_ERROR) {
+        while ((error = GLES30.glGetError()) != GLES30.GL_NO_ERROR) {
             Log.e("Shot", func + ": glError " + error);
             throw new RuntimeException(func + ": glError " + error);
         }
+    }
+
+    public void drawModelInstanced(Model.Instance m, Shader s, int instances) {
+        Matrix.setIdentityM(assets.mModel, 0);
+        m.transform.apply(assets.mModel);
+        Matrix.multiplyMM(assets.mModelView, 0, assets.mView, 0, assets.mModel, 0);
+        Matrix.multiplyMM(assets.mModelViewProjection, 0, assets.mProjection, 0, assets.mModelView, 0);
+
+        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL), 1, false, assets.mModel, 0);
+        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW), 1, false, assets.mModelView, 0);
+        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW_PROJECTION), 1, false, assets.mModelViewProjection, 0);
+        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_POSITION), 3, GLES30.GL_FLOAT, false, 0, m.model.vertexBuffer);
+        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_NORMAL), 3, GLES30.GL_FLOAT, false, 0, m.model.normalBuffer);
+        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_TEXCOORD), 2, GLES30.GL_FLOAT, false, 0, m.model.texcoordBuffer);
+        GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, m.model.vertCount, instances);
     }
 
     public void drawModel(Model.Instance m, Shader s) {
@@ -44,13 +60,13 @@ public abstract class Shot {
         Matrix.multiplyMM(assets.mModelView, 0, assets.mView, 0, assets.mModel, 0);
         Matrix.multiplyMM(assets.mModelViewProjection, 0, assets.mProjection, 0, assets.mModelView, 0);
 
-        GLES20.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL), 1, false, assets.mModel, 0);
-        GLES20.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW), 1, false, assets.mModelView, 0);
-        GLES20.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW_PROJECTION), 1, false, assets.mModelViewProjection, 0);
-        GLES20.glVertexAttribPointer(s.attributes.get(Shader.A_POSITION), 3, GLES20.GL_FLOAT, false, 0, m.model.vertexBuffer);
-        GLES20.glVertexAttribPointer(s.attributes.get(Shader.A_NORMAL), 3, GLES20.GL_FLOAT, false, 0, m.model.normalBuffer);
-        GLES20.glVertexAttribPointer(s.attributes.get(Shader.A_TEXCOORD), 2, GLES20.GL_FLOAT, false, 0, m.model.texcoordBuffer);
-        GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, m.model.vertCount);
+        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL), 1, false, assets.mModel, 0);
+        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW), 1, false, assets.mModelView, 0);
+        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW_PROJECTION), 1, false, assets.mModelViewProjection, 0);
+        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_POSITION), 3, GLES30.GL_FLOAT, false, 0, m.model.vertexBuffer);
+        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_NORMAL), 3, GLES30.GL_FLOAT, false, 0, m.model.normalBuffer);
+        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_TEXCOORD), 2, GLES30.GL_FLOAT, false, 0, m.model.texcoordBuffer);
+        GLES30.glDrawArrays(GLES30.GL_TRIANGLES, 0, m.model.vertCount);
     }
 
 }

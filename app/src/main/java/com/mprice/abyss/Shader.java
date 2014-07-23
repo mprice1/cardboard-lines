@@ -1,6 +1,6 @@
 package com.mprice.abyss;
 
-import android.opengl.GLES20;
+import android.opengl.GLES30;
 
 import java.util.HashMap;
 
@@ -12,6 +12,8 @@ public class Shader {
     // Not all shaders use all of these, but if they use the concept, they
     // should use the name.
     public static final String U_MODEL = "u_M";
+    public static final String U_VIEW = "u_V";
+    public static final String U_PROJECTION = "u_P";
     public static final String U_MODEL_VIEW = "u_MV";
     public static final String U_MODEL_VIEW_PROJECTION = "u_MVP";
     public static final String U_TEXTURE = "u_Texture";
@@ -23,6 +25,9 @@ public class Shader {
     public static final String A_POSITION = "a_Position";
     public static final String A_NORMAL = "a_Normal";
     public static final String A_TEXCOORD = "a_Texcoord";
+    // For instanced rendering.
+    public static final String A_MODEL_VIEW = "a_MV";
+
 
     public static final int PARAM_UNSET = -1;
 
@@ -36,20 +41,29 @@ public class Shader {
     }
 
     public void bindAttributeLocations() {
-        attributes.put(A_POSITION, GLES20.glGetAttribLocation(id, A_POSITION));
-        attributes.put(A_NORMAL, GLES20.glGetAttribLocation(id, A_NORMAL));
-        attributes.put(A_TEXCOORD, GLES20.glGetAttribLocation(id, A_TEXCOORD));
+        for (String param : attributes.keySet()) {
+            attributes.put(param, GLES30.glGetAttribLocation(id, param));
+        }
+        attributes.put(A_POSITION, GLES30.glGetAttribLocation(id, A_POSITION));
+        attributes.put(A_NORMAL, GLES30.glGetAttribLocation(id, A_NORMAL));
+        attributes.put(A_TEXCOORD, GLES30.glGetAttribLocation(id, A_TEXCOORD));
     }
 
     public void bindUniformLocations() {
         for (String param : uniforms.keySet()) {
-            uniforms.put(param, GLES20.glGetUniformLocation(id, param));
+            uniforms.put(param, GLES30.glGetUniformLocation(id, param));
         }
     }
 
     public Shader hasUniform(String name) {
         if (!uniforms.containsKey(name)) {
             uniforms.put(name, PARAM_UNSET);
+        }
+        return this;
+    }
+    public Shader hasAttribute(String name) {
+        if (!attributes.containsKey(name)) {
+            attributes.put(name, PARAM_UNSET);
         }
         return this;
     }

@@ -4,7 +4,6 @@ precision highp float;
 uniform sampler2D u_Texture;
 
 uniform vec2 u_TexScale;
-uniform vec3 u_BgColor;
 
 out vec4 fragmentColor;
 
@@ -16,7 +15,7 @@ void main() {
   vec4 texColor = texture(u_Texture, v_Texcoord * u_TexScale);
   vec3 fogColor = vec3(1.0, 1.0, 1.0);
   float fogFactor = max(0.0, min(1.0, abs(v_Position.z / 50.0)));
-  vec3 color = mix(u_BgColor, texColor.rgb, texColor.a);
+  vec3 color = texColor.rgb;
   color = mix(color, fogColor, fogFactor);
   fragmentColor.rgb = color.rgb;
   fragmentColor.a = 1.0;
