@@ -15,6 +15,7 @@ import com.google.vrtoolkit.cardboard.CardboardView;
 import com.google.vrtoolkit.cardboard.EyeTransform;
 import com.google.vrtoolkit.cardboard.HeadTransform;
 import com.google.vrtoolkit.cardboard.Viewport;
+import com.mprice.abyss.shots.RawMatShot;
 import com.mprice.abyss.shots.ScratchShot;
 import com.mprice.abyss.shots.Shot;
 
@@ -115,7 +116,8 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
 
         sharedAssets = new SharedAssets();
 
-        shot = new ScratchShot(sharedAssets);
+        // shot = new ScratchShot(sharedAssets);
+        shot = new RawMatShot(sharedAssets);
     }
 
     public static FloatBuffer makeBufferData(float[] data) {
@@ -256,10 +258,18 @@ public class MainActivity extends CardboardActivity implements CardboardView.Ste
         shader2.hasUniform(Shader.U_PROJECTION)
                 .hasUniform(Shader.U_TEXTURE)
                 .hasUniform(Shader.U_TEXTURE_SCALE);
+
+        // THESE ARENT REAL
+        shader2.hasUniform(Shader.U_MODEL_VIEW);
+
         shader2.hasAttribute(Shader.A_TEXCOORD)
                 .hasAttribute(Shader.A_POSITION)
                 .hasAttribute(Shader.A_NORMAL)
-                .hasAttribute(Shader.A_MODEL_VIEW);
+                .hasAttribute(Shader.A_INSTANCE_ID)
+                /*.hasAttribute(Shader.A_MODEL_VIEW_0)
+                .hasAttribute(Shader.A_MODEL_VIEW_1)
+                .hasAttribute(Shader.A_MODEL_VIEW_2)
+                .hasAttribute(Shader.A_MODEL_VIEW_3)*/;
         sharedAssets.shaders.put("instanced_mv", shader2);
 
         loadTexture("rule_alpha", R.raw.rule_alpha,

@@ -40,17 +40,36 @@ public abstract class Shot {
     }
 
     public void drawModelInstanced(Model.Instance m, Shader s, int instances) {
-        Matrix.setIdentityM(assets.mModel, 0);
-        m.transform.apply(assets.mModel);
-        Matrix.multiplyMM(assets.mModelView, 0, assets.mView, 0, assets.mModel, 0);
-        Matrix.multiplyMM(assets.mModelViewProjection, 0, assets.mProjection, 0, assets.mModelView, 0);
+        //Matrix.setIdentityM(assets.mModel, 0);
+        //m.transform.apply(assets.mModel);
+        //Matrix.multiplyMM(assets.mModelView, 0, assets.mView, 0, assets.mModel, 0);
+        //Matrix.multiplyMM(assets.mModelViewProjection, 0, assets.mProjection, 0, assets.mModelView, 0);
 
-        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL), 1, false, assets.mModel, 0);
-        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW), 1, false, assets.mModelView, 0);
-        GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW_PROJECTION), 1, false, assets.mModelViewProjection, 0);
-        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_POSITION), 3, GLES30.GL_FLOAT, false, 0, m.model.vertexBuffer);
-        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_NORMAL), 3, GLES30.GL_FLOAT, false, 0, m.model.normalBuffer);
-        GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_TEXCOORD), 2, GLES30.GL_FLOAT, false, 0, m.model.texcoordBuffer);
+        checkGLError("z");
+
+        /*
+        if (s.getHasUniform(Shader.U_MODEL)) {
+            GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL), 1, false, assets.mModel, 0);
+        }
+        if (s.getHasUniform(Shader.U_MODEL_VIEW)) {
+            GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW), 1, false, assets.mModelView, 0);
+        }
+        if (s.getHasUniform(Shader.U_MODEL_VIEW_PROJECTION)) {
+            GLES30.glUniformMatrix4fv(s.uniforms.get(Shader.U_MODEL_VIEW_PROJECTION), 1, false, assets.mModelViewProjection, 0);
+        }
+        */
+
+        checkGLError("zz");
+        if (s.getHasAttribute(Shader.A_POSITION)) {
+            GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_POSITION), 3, GLES30.GL_FLOAT, false, 0, m.model.vertexBuffer);
+        }
+        if (s.getHasAttribute(Shader.A_NORMAL)) {
+            GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_NORMAL), 3, GLES30.GL_FLOAT, false, 0, m.model.normalBuffer);
+        }
+        if (s.getHasAttribute(Shader.A_TEXCOORD)) {
+            GLES30.glVertexAttribPointer(s.attributes.get(Shader.A_TEXCOORD), 2, GLES30.GL_FLOAT, false, 0, m.model.texcoordBuffer);
+        }
+        checkGLError("zzzz");
         GLES30.glDrawArraysInstanced(GLES30.GL_TRIANGLES, 0, m.model.vertCount, instances);
     }
 

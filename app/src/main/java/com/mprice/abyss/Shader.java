@@ -26,7 +26,12 @@ public class Shader {
     public static final String A_NORMAL = "a_Normal";
     public static final String A_TEXCOORD = "a_Texcoord";
     // For instanced rendering.
-    public static final String A_MODEL_VIEW = "a_MV";
+    // Apparently attributes have to be vectors... so a 4x4 matrix has to be passed as 4 attributes.
+    public static final String A_INSTANCE_ID = "a_ID";  // Debugging...
+    public static final String A_MODEL_VIEW_0 = "a_MV0";
+    public static final String A_MODEL_VIEW_1 = "a_MV1";
+    public static final String A_MODEL_VIEW_2 = "a_MV2";
+    public static final String A_MODEL_VIEW_3 = "a_MV3";
 
 
     public static final int PARAM_UNSET = -1;
@@ -44,9 +49,6 @@ public class Shader {
         for (String param : attributes.keySet()) {
             attributes.put(param, GLES30.glGetAttribLocation(id, param));
         }
-        attributes.put(A_POSITION, GLES30.glGetAttribLocation(id, A_POSITION));
-        attributes.put(A_NORMAL, GLES30.glGetAttribLocation(id, A_NORMAL));
-        attributes.put(A_TEXCOORD, GLES30.glGetAttribLocation(id, A_TEXCOORD));
     }
 
     public void bindUniformLocations() {
@@ -61,10 +63,18 @@ public class Shader {
         }
         return this;
     }
+    public boolean getHasUniform(String name) {
+        return uniforms.containsKey(name);
+    }
+
     public Shader hasAttribute(String name) {
         if (!attributes.containsKey(name)) {
             attributes.put(name, PARAM_UNSET);
         }
         return this;
+    }
+
+    public boolean getHasAttribute(String name) {
+        return attributes.containsKey(name);
     }
 }
